@@ -6,6 +6,12 @@ let gameInterval: NodeJS.Timeout;
 
 const defaultTail = 1;
 
+declare global {
+  interface CanvasRenderingContext2D {
+    roundRect: (x: number, y: number, w: number, h: number, r: number) => CanvasDrawPath
+  }
+}
+
 export default defineComponent({
   name: "SnakeGame",
   setup() {
@@ -37,6 +43,19 @@ export default defineComponent({
         height: 0
       }
     });
+
+    CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, w: number, h: number, r: number) {
+      if (w < 2 * r) r = w / 2;
+      if (h < 2 * r) r = h / 2;
+      this.beginPath();
+      this.moveTo(x+r, y);
+      this.arcTo(x+w, y,   x+w, y+h, r);
+      this.arcTo(x+w, y+h, x,   y+h, r);
+      this.arcTo(x,   y+h, x,   y,   r);
+      this.arcTo(x,   y,   x+w, y,   r);
+      this.closePath();
+      return this;
+    };
 
     function addEvent() {
       window.addEventListener('resize', resetSize);
@@ -73,7 +92,7 @@ export default defineComponent({
       if (!state.gameStatus) {
         state.move = { x: 0.1, y: 0 };
         state.score = getScorePosition();
-        gameInterval = setInterval(game, 0);
+        gameInterval = setInterval(game, 1);
         state.gameStatus = true;
       }
     }
@@ -96,6 +115,9 @@ export default defineComponent({
     function game() {
       state.player.x += state.move.x;
       state.player.y += state.move.y;
+
+      state.player.x = parseFloat(state.player.x.toFixed(1));
+      state.player.y = parseFloat(state.player.y.toFixed(1));
 
       if (state.player.x < 0) {
         state.player.x = state.max.width;
@@ -135,22 +157,30 @@ export default defineComponent({
       }
       
       ctx.fillStyle = "red";
-      ctx.fillRect(
+      ctx.roundRect(
         state.score.x * state.size,
         state.score.y * state.size,
         state.size - 2,
-        state.size - 2
-      );
+        state.size - 2,
+        state.size / 2
+      ).fill();
 
       // snake
       ctx.fillStyle = "lime";
-      state.trailArr.forEach((item, index) => {
-        ctx.fillRect(
-          item.x * state.size,
-          item.y * state.size,
+      // console.log("*===================================================*")
+      state.trailArr.forEach((item, index, arr) => {
+        // console.log(item.x, item.y);
+
+        const x = item.x * state.size;
+        const y = item.y * state.size;
+
+        ctx.roundRect(
+          x,
+          y,
           state.size - 2,
-          state.size - 2
-        );
+          state.size - 2,
+          state.size / 2
+        ).fill();
 
         if ((item.x === state.player.x) && (item.y === state.player.y)) {
           state.gameStatus = false;
@@ -160,9 +190,10 @@ export default defineComponent({
           resetMap();
         }
       })
+      // console.log("*===================================================*")
 
       state.trailArr.push({ x: state.player.x, y: state.player.y });
-      while (state.trailArr.length > state.tail) {
+      while (state.trailArr.length > state.tail * 10) {
         state.trailArr.shift();
       }
 
