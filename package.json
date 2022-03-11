@@ -1,0 +1,40 @@
+{
+  "name": "snake",
+  "private": true,
+  "version": "0.0.0",
+  "main": "main.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "@vitejs/plugin-vue": "^2.2.0",
+    "electron": "^17.1.2",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0",
+    "vue-tsc": "^0.29.8"
+  },
+  "build": {
+    "appId": "kr.co.leteu.snake",
+    "productName": "Snake Game",
+    "copyright": "Copyright 2022. leteu",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist_electron"
+    }
+  }
+}
