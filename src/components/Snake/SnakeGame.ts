@@ -1,5 +1,4 @@
 import { defineComponent, h, reactive, onBeforeUnmount, onMounted } from 'vue';
-import { screen } from 'electron';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
@@ -53,15 +52,12 @@ export default defineComponent({
     }
 
     function resetSize() {
-      canvas.width = (15 * Math.floor((canvas?.parentElement?.offsetWidth as number) / 15));
-      canvas.height = (15 * Math.floor((canvas?.parentElement?.offsetHeight as number) / 15));
+      // canvas.width = (15 * Math.floor((canvas?.parentElement?.offsetWidth as number) / 15));
+      // canvas.height = (15 * Math.floor((canvas?.parentElement?.offsetHeight as number) / 15));
 
-      const ScreenSize = screen.getAllDisplays();
+      canvas.width = 900;
+      canvas.height = 600;
 
-      console.log(ScreenSize);
-
-      // canvas.width = (15 * Math.floor()) / 15;
-      // canvas.height = (15 * Math.floor(screen.)) / 15;
 
       state.max = {
         width: (canvas.width / state.size) - 1,
@@ -74,9 +70,10 @@ export default defineComponent({
     }
 
     function startGame() {
-      if(!state.gameStatus) {
-        state.move = { x: 1, y: 0 };
-        gameInterval = setInterval(game, 500/15);
+      if (!state.gameStatus) {
+        state.move = { x: 0.1, y: 0 };
+        state.score = getScorePosition();
+        gameInterval = setInterval(game, 0);
         state.gameStatus = true;
       }
     }
@@ -116,7 +113,23 @@ export default defineComponent({
       resetMap();
 
       // 점수
-      if ((state.score.x === state.player.x) && (state.score.y === state.player.y)) {
+      if (
+        (
+          (
+            (state.player.x >= (state.score.x + (state.size/30) - (state.size/15)))
+            && 
+            (state.player.x <= (state.score.x + (state.size/30) + (state.size/15)))
+          )
+        )
+        &&
+        (
+          (
+            (state.player.y >= (state.score.y + (state.size/30) - (state.size/15)))
+            && 
+            (state.player.y <= (state.score.y + (state.size/30) + (state.size/15)))
+          )
+        )
+      ) {
         state.tail++;
         state.score = getScorePosition();
       }
@@ -163,19 +176,19 @@ export default defineComponent({
       switch (evt.keyCode) {
         case 65:
         case 37:
-          state.move = { x: -1, y: 0 }
+          state.move = { x: -0.1, y: 0 }
           break;
         case 87:
         case 38:
-          state.move = { x: 0, y: -1 }
+          state.move = { x: 0, y: -0.1 }
           break;
         case 68:
         case 39:
-          state.move = { x: 1, y: 0 }
+          state.move = { x: 0.1, y: 0 }
           break;
         case 83:
         case 40:
-          state.move = { x: 0, y: 1 }
+          state.move = { x: 0, y: 0.1 }
           break;
       }
     }
