@@ -3,11 +3,13 @@ import 'src/components/Canvas';
 import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
 import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
 import MainMenuOptions from './MainMenuOptions';
+import GameOver from './GameOver';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let gameInterval: NodeJS.Timeout;
 let mainMenu: MainMenuOptions;
+let gameOver: GameOver;
 const defaultTail = 1;
 
 declare global {
@@ -85,6 +87,14 @@ export default defineComponent({
         if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
           startGame();
         }
+
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
+          
+        }
+
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
+          window.close();
+        }
       }
     }
 
@@ -106,9 +116,9 @@ export default defineComponent({
         }
 
         if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
-          mainMenu.source(true);
+          mainMenu.exit(true);
         } else {
-          mainMenu.source(false);
+          mainMenu.exit(false);
         }
 
         if (
@@ -254,14 +264,16 @@ export default defineComponent({
         if ((item.x === state.player.x) && (item.y === state.player.y)) {
           playEndSound();
           state.gameStatus = false;
-          alert(`게임 오버 \n 기록 : ${state.tail}`);
+          gameOver.gameOver(state.tail);
           clearInterval(gameInterval);
+          
           state.tail = defaultTail;
           state.player = {
             x: 15,
             y: 15
           };
           state.move = { x: 0.1, y: 0 };
+
           mainMap();
         }
       })
@@ -303,7 +315,7 @@ export default defineComponent({
       resetMap();
       mainMenu.start();
       mainMenu.options();
-      mainMenu.source();
+      mainMenu.exit();
     }
 
     function optionMap() {
@@ -318,6 +330,7 @@ export default defineComponent({
       canvas = document.getElementById("gc") as HTMLCanvasElement;
       ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
       mainMenu = new MainMenuOptions(canvas, ctx);
+      gameOver = new GameOver(canvas, ctx);
 
       addEvent();
       resetSize();

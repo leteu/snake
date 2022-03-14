@@ -16,3 +16,6 @@ export default defineComponent({
 })
 </script>
 
+<style lang="sass">
+  @import url('app/public/font/PressStart2P-Regular.ttf');
+</style>

@@ -20,11 +20,11 @@ class MainMenuOptions {
     this.ctx.fillText(`옵션`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 2);
   }
 
-  source(on?: boolean) {
+  exit(on?: boolean) {
     this.ctx.font = "bold 40px Arial";
-    this.ctx.fillStyle = on ? 'lime' : "white";
+    this.ctx.fillStyle = on ? 'red' : "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(`출처`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 3);
+    this.ctx.fillText(`나가기`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 3);
   }
 
   menuWidthPosition(x: number): boolean {
