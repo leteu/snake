@@ -8,7 +8,7 @@ export default defineConfig({
   base: process.env.ELECTRON=="true" ? './' : "./",
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      'src': path.resolve(__dirname, './src'),
       'app': path.resolve(__dirname, './'),
     }
   }
