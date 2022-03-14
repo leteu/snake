@@ -1,75 +1,18 @@
-import { defineComponent, h, reactive, onBeforeUnmount, onMounted } from 'vue';
+import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted } from 'vue';
+import 'src/components/Canvas';
+import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
+import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
+import MainMenuOptions from './MainMenuOptions';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let gameInterval: NodeJS.Timeout;
-
+let mainMenu: MainMenuOptions;
 const defaultTail = 1;
-
-import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
-const scoreSound = new Audio(getScoreSound);
-
-import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
-const endSound = new Audio(getEndSound);
 
 declare global {
   interface CanvasRenderingContext2D {
     roundRect: (x: number, y: number, w: number, h: number, r: number) => CanvasDrawPath
-  }
-}
-
-class MainMenuOptions {
-  start(on?: boolean) {
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = on ? 'lime' : "white";
-    ctx.textAlign = "center";
-    ctx.fillText(`시작`, (canvas.width / 2), ((canvas.height - 100) / 3) * 1);
-  }
-
-  options(on?: boolean) {
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = on ? 'lime' : "white";
-    ctx.textAlign = "center";
-    ctx.fillText(`옵션`, (canvas.width / 2), ((canvas.height - 100) / 3) * 2);
-  }
-
-  source(on?: boolean) {
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = on ? 'lime' : "white";
-    ctx.textAlign = "center";
-    ctx.fillText(`출처`, (canvas.width / 2), ((canvas.height - 100) / 3) * 3);
-  }
-
-  menuWidthPosition(x: number): boolean {
-    return ((canvas.width / 2) - 50) <= x && x <= ((canvas.width / 2) + 50)
-  }
-
-  menuHeightPosition(y: number): 'start' | 'options' | 'source' | undefined {
-    const defaultHeight = canvas.height - 100;
-
-    if (
-      (y >= (defaultHeight / 3) - 40)
-      &&
-      (y <= (defaultHeight / 3) + 10)
-    ) {
-      return 'start';
-    }
-
-    if (
-      (y >= (defaultHeight / 3 * 2) - 40)
-      &&
-      (y <= (defaultHeight / 3 * 2) + 10)
-    ) {
-      return 'options';
-    }
-
-    if (
-      (y >= defaultHeight - 40)
-      &&
-      (y <= (defaultHeight + 10))
-    ) {
-      return 'source';
-    }
   }
 }
 
@@ -104,28 +47,26 @@ export default defineComponent({
         height: 0
       }
     });
-
-    const mainMenu = new MainMenuOptions();
-
-    CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, w: number, h: number, r: number) {
-      if (w < 2 * r) r = w / 2;
-      if (h < 2 * r) r = h / 2;
-      this.beginPath();
-      this.moveTo(x + r, y);
-      this.arcTo(x + w, y, x + w, y + h, r);
-      this.arcTo(x + w, y + h, x, y + h, r);
-      this.arcTo(x, y + h, x, y, r);
-      this.arcTo(x, y, x + w, y, r);
-      this.closePath();
-      return this;
-    };
+    
+    const music = reactive({
+      score: {
+        volume: 1,
+        sound: new Audio(getScoreSound)
+      },
+      end:{
+        volume: 1,
+        sound: new Audio(getEndSound)
+      }
+    });
 
     function playGetScoreSound() {
-      scoreSound.play();
+      music.score.sound.volume = music.score.volume;
+      music.score.sound.play();
     }
 
     function playEndSound() {
-      endSound.play();
+      music.end.sound.volume = music.end.volume;
+      music.end.sound.play();
     }
 
     function getMousePos(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -366,16 +307,17 @@ export default defineComponent({
     }
 
     function optionMap() {
-
+      
     }
 
     function sourceMap() {
-      
+
     }
 
     onMounted(() => {
       canvas = document.getElementById("gc") as HTMLCanvasElement;
       ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+      mainMenu = new MainMenuOptions(canvas, ctx);
 
       addEvent();
       resetSize();
