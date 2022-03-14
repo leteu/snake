@@ -6,6 +6,12 @@ let gameInterval: NodeJS.Timeout;
 
 const defaultTail = 1;
 
+import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
+const scoreSound = new Audio(getScoreSound);
+
+import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
+const endSound = new Audio(getEndSound);
+
 declare global {
   interface CanvasRenderingContext2D {
     roundRect: (x: number, y: number, w: number, h: number, r: number) => CanvasDrawPath
@@ -113,6 +119,14 @@ export default defineComponent({
       this.closePath();
       return this;
     };
+
+    function playGetScoreSound() {
+      scoreSound.play();
+    }
+
+    function playEndSound() {
+      endSound.play();
+    }
 
     function getMousePos(canvas: HTMLCanvasElement, event: MouseEvent) {
       var rect = canvas.getBoundingClientRect();
@@ -265,6 +279,7 @@ export default defineComponent({
           )
         )
       ) {
+        playGetScoreSound();
         state.tail++;
         state.score = getScorePosition();
       }
@@ -296,6 +311,7 @@ export default defineComponent({
         ).fill();
 
         if ((item.x === state.player.x) && (item.y === state.player.y)) {
+          playEndSound();
           state.gameStatus = false;
           alert(`게임 오버 \n 기록 : ${state.tail}`);
           clearInterval(gameInterval);
