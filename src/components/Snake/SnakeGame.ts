@@ -12,6 +12,61 @@ declare global {
   }
 }
 
+class MainMenuOptions {
+  start(on?: boolean) {
+    ctx.font = "bold 40px Arial";
+    ctx.fillStyle = on ? 'lime' : "white";
+    ctx.textAlign = "center";
+    ctx.fillText(`시작`, (canvas.width / 2), ((canvas.height - 100) / 3) * 1);
+  }
+
+  options(on?: boolean) {
+    ctx.font = "bold 40px Arial";
+    ctx.fillStyle = on ? 'lime' : "white";
+    ctx.textAlign = "center";
+    ctx.fillText(`옵션`, (canvas.width / 2), ((canvas.height - 100) / 3) * 2);
+  }
+
+  source(on?: boolean) {
+    ctx.font = "bold 40px Arial";
+    ctx.fillStyle = on ? 'lime' : "white";
+    ctx.textAlign = "center";
+    ctx.fillText(`출처`, (canvas.width / 2), ((canvas.height - 100) / 3) * 3);
+  }
+
+  menuWidthPosition(x: number): boolean {
+    return ((canvas.width / 2) - 50) <= x && x <= ((canvas.width / 2) + 50)
+  }
+
+  menuHeightPosition(y: number): 'start' | 'options' | 'source' | undefined {
+    const defaultHeight = canvas.height - 100;
+
+    if (
+      (y >= (defaultHeight / 3) - 40)
+      &&
+      (y <= (defaultHeight / 3) + 10)
+    ) {
+      return 'start';
+    }
+
+    if (
+      (y >= (defaultHeight / 3 * 2) - 40)
+      &&
+      (y <= (defaultHeight / 3 * 2) + 10)
+    ) {
+      return 'options';
+    }
+
+    if (
+      (y >= defaultHeight - 40)
+      &&
+      (y <= (defaultHeight + 10))
+    ) {
+      return 'source';
+    }
+  }
+}
+
 export default defineComponent({
   name: "SnakeGame",
   setup() {
@@ -44,46 +99,104 @@ export default defineComponent({
       }
     });
 
+    const mainMenu = new MainMenuOptions();
+
     CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, w: number, h: number, r: number) {
       if (w < 2 * r) r = w / 2;
       if (h < 2 * r) r = h / 2;
       this.beginPath();
-      this.moveTo(x+r, y);
-      this.arcTo(x+w, y,   x+w, y+h, r);
-      this.arcTo(x+w, y+h, x,   y+h, r);
-      this.arcTo(x,   y+h, x,   y,   r);
-      this.arcTo(x,   y,   x+w, y,   r);
+      this.moveTo(x + r, y);
+      this.arcTo(x + w, y, x + w, y + h, r);
+      this.arcTo(x + w, y + h, x, y + h, r);
+      this.arcTo(x, y + h, x, y, r);
+      this.arcTo(x, y, x + w, y, r);
       this.closePath();
       return this;
     };
 
+    function getMousePos(canvas: HTMLCanvasElement, event: MouseEvent) {
+      var rect = canvas.getBoundingClientRect();
+
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    function canvasClickEvent(evt: MouseEvent) {
+      const pos = getMousePos(canvas, evt);
+
+      if (!state.gameStatus) {
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
+          startGame();
+        }
+      }
+    }
+
+    function canvasMouseMoveEvent(evt: MouseEvent) {
+      const pos = getMousePos(canvas, evt);
+      resetMap();
+
+      if (!state.gameStatus) {
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
+          mainMenu.start(true);
+        } else {
+          mainMenu.start(false);
+        }
+
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
+          mainMenu.options(true);
+        } else {
+          mainMenu.options(false);
+        }
+
+        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
+          mainMenu.source(true);
+        } else {
+          mainMenu.source(false);
+        }
+
+        if (
+          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start')
+          ||
+          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options')
+          ||
+          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source')
+        ) {
+          canvas.style.cursor = 'pointer';
+        } else {
+          canvas.style.cursor = 'default';
+        }
+      }
+
+      if (state.gameStatus) {
+        canvas.style.cursor = 'default';
+      }
+    }
+
     function addEvent() {
       window.addEventListener('resize', resetSize);
       document.addEventListener("keydown", keyPush);
-      canvas.addEventListener("click", startGame);
+      canvas.addEventListener('click', canvasClickEvent);
+      canvas.addEventListener('mousemove', canvasMouseMoveEvent)
     }
 
     function removeEvent() {
       window.removeEventListener('resize', resetSize);
       document.removeEventListener("keydown", keyPush);
-      canvas.removeEventListener("click", startGame);
+      canvas.removeEventListener('click', canvasClickEvent);
+      canvas.removeEventListener('mousemove', canvasMouseMoveEvent)
       clearInterval(gameInterval);
     }
 
     function resetSize() {
-      // canvas.width = (15 * Math.floor((canvas?.parentElement?.offsetWidth as number) / 15));
-      // canvas.height = (15 * Math.floor((canvas?.parentElement?.offsetHeight as number) / 15));
-
       canvas.width = 900;
       canvas.height = 600;
-
 
       state.max = {
         width: (canvas.width / state.size) - 1,
         height: (canvas.height / state.size) - 1
       };
-
-      console.log(canvas);
 
       resetMap();
     }
@@ -138,24 +251,24 @@ export default defineComponent({
       if (
         (
           (
-            (state.player.x >= (state.score.x + (state.size/30) - (state.size/15)))
-            && 
-            (state.player.x <= (state.score.x + (state.size/30) + (state.size/15)))
+            (state.player.x >= (state.score.x + (state.size / 30) - (state.size / 15)))
+            &&
+            (state.player.x <= (state.score.x + (state.size / 30) + (state.size / 15)))
           )
         )
         &&
         (
           (
-            (state.player.y >= (state.score.y + (state.size/30) - (state.size/15)))
-            && 
-            (state.player.y <= (state.score.y + (state.size/30) + (state.size/15)))
+            (state.player.y >= (state.score.y + (state.size / 30) - (state.size / 15)))
+            &&
+            (state.player.y <= (state.score.y + (state.size / 30) + (state.size / 15)))
           )
         )
       ) {
         state.tail++;
         state.score = getScorePosition();
       }
-      
+
       ctx.fillStyle = "red";
       ctx.roundRect(
         state.score.x * state.size,
@@ -187,7 +300,12 @@ export default defineComponent({
           alert(`게임 오버 \n 기록 : ${state.tail}`);
           clearInterval(gameInterval);
           state.tail = defaultTail;
-          resetMap();
+          state.player = {
+            x: 15,
+            y: 15
+          };
+          state.move = { x: 0.1, y: 0 };
+          mainMap();
         }
       })
       // console.log("*===================================================*")
@@ -224,13 +342,28 @@ export default defineComponent({
       }
     }
 
+    function mainMap() {
+      resetMap();
+      mainMenu.start();
+      mainMenu.options();
+      mainMenu.source();
+    }
+
+    function optionMap() {
+
+    }
+
+    function sourceMap() {
+      
+    }
+
     onMounted(() => {
       canvas = document.getElementById("gc") as HTMLCanvasElement;
       ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
       addEvent();
       resetSize();
-      resetMap();
+      mainMap();
     });
 
     onBeforeUnmount(() => {
