@@ -4,6 +4,7 @@ import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
 import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
 import MainMenuOptions from './MainMenuOptions';
 import GameOver from './GameOver';
+import RecordClass from './RecordClass';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
@@ -11,6 +12,7 @@ let gameInterval: NodeJS.Timeout;
 let mainMenu: MainMenuOptions;
 let gameOver: GameOver;
 const defaultTail = 1;
+const recordClass = new RecordClass();
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -84,18 +86,38 @@ export default defineComponent({
     function canvasClickEvent(evt: MouseEvent) {
       const pos = getMousePos(canvas, evt);
 
-      if (!state.gameStatus) {
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
-          startGame();
-        }
+      switch(state.pageStatus) {
+        case 'main':
+          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
+            startGame();
+          }
+  
+          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
+            
+          }
+  
+          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
+            window.close();
+          }
+          break;
 
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
-          
-        }
+        case 'gameOver':
+          if (gameOver.widthPosition(pos.x) === 'restart' && gameOver.heightPosition(pos.y)) {
+            startGame();
+          }
+  
+          if (gameOver.widthPosition(pos.x) === 'record' && gameOver.heightPosition(pos.y)) {
+            // const playerName = prompt('이름을 입력해주세요.');
+            recordClass.record('');
+          }
+  
+          if (gameOver.widthPosition(pos.x) === 'goMain' && gameOver.heightPosition(pos.y)) {
+            mainMap();
+          }
+          break;
 
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
-          window.close();
-        }
+        default:
+          break;
       }
     }
 
@@ -103,43 +125,44 @@ export default defineComponent({
       const pos = getMousePos(canvas, evt);
       resetMap();
 
-      if (!state.gameStatus && state.pageStatus === 'main') {
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
-          mainMenu.start(true);
-        } else {
-          mainMenu.start(false);
-        }
+      switch(state.pageStatus) {
+        case 'main':
+          const mainWidthPosition = mainMenu.menuWidthPosition(pos.x);
+          const mainHeightPosition = mainMenu.menuHeightPosition(pos.y);
 
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
-          mainMenu.options(true);
-        } else {
-          mainMenu.options(false);
-        }
+          mainMenu.start(mainWidthPosition && mainHeightPosition === 'start');
+          mainMenu.options(mainWidthPosition && mainHeightPosition === 'options');
+          mainMenu.exit(mainWidthPosition && mainHeightPosition === 'source');
 
-        if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
-          mainMenu.exit(true);
-        } else {
-          mainMenu.exit(false);
-        }
+          canvas.style.cursor = (
+            (
+              (mainWidthPosition && mainHeightPosition === 'start')
+              || (mainWidthPosition && mainHeightPosition === 'options')
+              || (mainWidthPosition && mainHeightPosition === 'source')
+            )
+          ) ? 'pointer' : 'default';
 
-        if (
-          (
-            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start')
-            ||
-            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options')
-            ||
-            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source')
-          )
-          && !state.gameStatus && state.pageStatus === 'main'
-        ) {
-          canvas.style.cursor = 'pointer';
-        } else {
+          break;
+        case 'gameOver':
+          const overWidthPosition = gameOver.widthPosition(pos.x);
+          const overHeightPosition = gameOver.heightPosition(pos.y);
+
+          resetMap();
+          gameOver.header();
+          gameOver.restart(overWidthPosition === 'restart' && overHeightPosition);
+          gameOver.recordScore(overWidthPosition === 'record' && overHeightPosition);
+          gameOver.goMain(overWidthPosition === 'goMain' && overHeightPosition);
+
+          canvas.style.cursor = (
+            (overWidthPosition === 'restart' && overHeightPosition)
+            || (overWidthPosition === 'record' && overHeightPosition)
+            || (overWidthPosition === 'goMain' && overHeightPosition)
+          ) ? 'pointer' : 'default';
+
+          break;
+        default:
           canvas.style.cursor = 'default';
-        }
-      }
-
-      if (state.gameStatus) {
-        canvas.style.cursor = 'default';
+          break;
       }
     }
 
@@ -148,14 +171,16 @@ export default defineComponent({
       (newVal) => {
         switch(newVal) {
           case 'main':
+          case 'gameOver':
             canvas.addEventListener('click', canvasClickEvent);
             canvas.addEventListener('mousemove', canvasMouseMoveEvent);
+            break;
           case 'game':
           case 'options':
-          case 'gameOver':
           default:
             canvas.removeEventListener('click', canvasClickEvent);
             canvas.removeEventListener('mousemove', canvasMouseMoveEvent);
+            break;
         }
       },
       {
@@ -276,6 +301,7 @@ export default defineComponent({
           playEndSound();
           state.gameStatus = false;
           state.pageStatus = 'gameOver';
+          recordClass.updateScore(state.tail);
           gameOver.gameOver(state.tail);
           clearInterval(gameInterval);
 
