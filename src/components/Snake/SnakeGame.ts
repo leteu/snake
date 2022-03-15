@@ -1,4 +1,4 @@
-import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted } from 'vue';
+import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted, watch } from 'vue';
 import 'src/components/Canvas';
 import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
 import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
@@ -102,7 +102,7 @@ export default defineComponent({
       const pos = getMousePos(canvas, evt);
       resetMap();
 
-      if (!state.gameStatus) {
+      if (!state.gameStatus && state.pageStatus === 'main') {
         if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start') {
           mainMenu.start(true);
         } else {
@@ -122,11 +122,13 @@ export default defineComponent({
         }
 
         if (
-          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start')
-          ||
-          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options')
-          ||
-          (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source')
+          (
+            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'start')
+            ||
+            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options')
+            ||
+            (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source')
+          )
         ) {
           canvas.style.cursor = 'pointer';
         } else {
@@ -246,9 +248,19 @@ export default defineComponent({
 
       // snake
       ctx.fillStyle = "lime";
-      // console.log("*===================================================*")
-      state.trailArr.forEach((item, index, arr) => {
-        // console.log(item.x, item.y);
+      for (const item of state.trailArr) {
+        if ((item.x === state.player.x) && (item.y === state.player.y)) {
+          playEndSound();
+          state.gameStatus = false;
+          state.pageStatus = 'gameOver';
+          gameOver.gameOver(state.tail);
+          clearInterval(gameInterval);
+
+          state.tail = defaultTail;
+          state.player = { x: 15, y: 15 };
+          state.move = { x: 0.1, y: 0 };
+          return;
+        }
 
         const x = item.x * state.size;
         const y = item.y * state.size;
@@ -260,24 +272,7 @@ export default defineComponent({
           state.size - 2,
           state.size / 2
         ).fill();
-
-        if ((item.x === state.player.x) && (item.y === state.player.y)) {
-          playEndSound();
-          state.gameStatus = false;
-          gameOver.gameOver(state.tail);
-          clearInterval(gameInterval);
-          
-          state.tail = defaultTail;
-          state.player = {
-            x: 15,
-            y: 15
-          };
-          state.move = { x: 0.1, y: 0 };
-
-          mainMap();
-        }
-      })
-      // console.log("*===================================================*")
+      }
 
       state.trailArr.push({ x: state.player.x, y: state.player.y });
       while (state.trailArr.length > state.tail * 10) {
@@ -323,12 +318,13 @@ export default defineComponent({
     }
 
     function sourceMap() {
-
+      
     }
 
     onMounted(() => {
       canvas = document.getElementById("gc") as HTMLCanvasElement;
       ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
       mainMenu = new MainMenuOptions(canvas, ctx);
       gameOver = new GameOver(canvas, ctx);
 
