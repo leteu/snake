@@ -43,6 +43,7 @@ export default defineComponent({
       tail: defaultTail,
 
       gameStatus: false,
+      pageStatus: 'main' as 'main' | 'options' | 'gameOver' | 'game',
 
       max: {
         width: 0,
@@ -129,6 +130,7 @@ export default defineComponent({
             ||
             (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source')
           )
+          && !state.gameStatus && state.pageStatus === 'main'
         ) {
           canvas.style.cursor = 'pointer';
         } else {
@@ -140,6 +142,26 @@ export default defineComponent({
         canvas.style.cursor = 'default';
       }
     }
+
+    watch(
+      () => state.pageStatus,
+      (newVal) => {
+        switch(newVal) {
+          case 'main':
+            canvas.addEventListener('click', canvasClickEvent);
+            canvas.addEventListener('mousemove', canvasMouseMoveEvent);
+          case 'game':
+          case 'options':
+          case 'gameOver':
+          default:
+            canvas.removeEventListener('click', canvasClickEvent);
+            canvas.removeEventListener('mousemove', canvasMouseMoveEvent);
+        }
+      },
+      {
+        deep: true
+      }
+    )
 
     function addEvent() {
       window.addEventListener('resize', resetSize);
@@ -174,6 +196,7 @@ export default defineComponent({
         state.score = getScorePosition();
         gameInterval = setInterval(game, 1);
         state.gameStatus = true;
+        state.pageStatus = 'game';
       }
     }
 
@@ -307,6 +330,7 @@ export default defineComponent({
     }
 
     function mainMap() {
+      state.pageStatus = 'main';
       resetMap();
       mainMenu.start();
       mainMenu.options();
@@ -314,10 +338,7 @@ export default defineComponent({
     }
 
     function optionMap() {
-      
-    }
-
-    function sourceMap() {
+      state.pageStatus = 'options';
       
     }
 
