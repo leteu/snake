@@ -12,7 +12,8 @@
     "lib": ["esnext", "dom"],
     "paths": {
       "src/*": ["./src/*"],
-      "app/*": ["./*"]
+      "app/*": ["./*"],
+      "font/*": ["./public/font/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

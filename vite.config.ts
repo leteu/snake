@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       'src': path.resolve(__dirname, './src'),
       'app': path.resolve(__dirname, './'),
+      'font': path.resolve(__dirname, './public/font')
     }
   }
 })
