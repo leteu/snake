@@ -7,21 +7,21 @@ class MainMenuOptions {
   }
 
   start(on?: boolean) {
-    this.ctx.font = "bold 40px Arial";
+    this.ctx.font = "bold 40px 둥근모꼴";
     this.ctx.fillStyle = on ? 'lime' : "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(`시작`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 1);
   }
 
   options(on?: boolean) {
-    this.ctx.font = "bold 40px Arial";
+    this.ctx.font = "bold 40px 둥근모꼴";
     this.ctx.fillStyle = on ? 'lime' : "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(`옵션`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 2);
   }
 
   exit(on?: boolean) {
-    this.ctx.font = "bold 40px Arial";
+    this.ctx.font = "bold 40px 둥근모꼴";
     this.ctx.fillStyle = on ? 'red' : "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(`나가기`, (this.canvas.width / 2), ((this.canvas.height - 100) / 3) * 3);
