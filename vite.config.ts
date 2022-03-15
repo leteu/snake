@@ -11,6 +11,11 @@ export default defineConfig({
       'src': path.resolve(__dirname, './src'),
       'app': path.resolve(__dirname, './'),
       'font': path.resolve(__dirname, './public/font')
+    },
+  },
+  server: {
+    fs: {
+      strict: true,
     }
   }
 })

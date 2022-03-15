@@ -10,7 +10,9 @@ function createWindow() {
     resizable: false,
     center: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.ts')
+      preload: path.join(__dirname, 'preload.ts'),
+      nodeIntegration: true,
+      contextIsolation: false
     },
     autoHideMenuBar: true,
     fullscreenable: true,

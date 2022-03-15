@@ -17,6 +17,7 @@
     "app:build": "npm run build:for:electron && npm run electron:builder"
   },
   "dependencies": {
+    "moment": "^2.29.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {
