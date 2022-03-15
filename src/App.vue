@@ -17,5 +17,7 @@ export default defineComponent({
 </script>
 
 <style lang="sass">
-  @import url('app/public/font/PressStart2P-Regular.ttf');
+  @font-face
+    font-family: 'Press Start 2P'
+    src: url('font/PressStart2P-Regular.ttf') format('truetype')
 </style>
