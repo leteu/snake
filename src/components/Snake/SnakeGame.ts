@@ -2,6 +2,7 @@ import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted, wat
 import 'src/components/Canvas';
 import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
 import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
+import getBonusSound from 'app/public/mixkit-video-game-bomb-alert-2803.wav';
 import MainMenuOptions from './MainMenuOptions';
 import GameOver from './GameOver';
 import RecordClass from './RecordClass';
@@ -72,6 +73,10 @@ export default defineComponent({
       end:{
         volume: 1,
         sound: new Audio(getEndSound)
+      },
+      bonus: {
+        volume: 1,
+        sound: new Audio(getBonusSound)
       }
     });
 
@@ -90,6 +95,16 @@ export default defineComponent({
     function playEndSound() {
       music.end.sound.volume = music.end.volume;
       music.end.sound.play();
+    }
+
+    function playBonusSound() {
+      music.bonus.sound.volume = music.bonus.volume;
+      music.bonus.sound.loop = true;
+      music.bonus.sound.play();
+
+      setTimeout(() => {
+        music.bonus.sound.pause();
+      }, 10 * 1000)
     }
 
     function getMousePos(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -378,7 +393,7 @@ export default defineComponent({
         setTimeout(() => {
           rainbowState.bonus = false;
         }, 10 * 1000);
-
+        playBonusSound();
         state.bonus = getScorePosition();
       }
 
