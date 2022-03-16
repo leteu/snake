@@ -1,23 +1,31 @@
 <template>
   <Snake />
   <span class="press-start-2p dung-geun-mo dos-gothic">&nbsp;</span>
+
+  <RecordListVue @close.stop.prevent="() => {  }" v-show="record" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { useStore } from 'vuex';
 import Snake from './components/Snake'
+import RecordListVue from './components/Snake/RecordList.vue'
 
 export default defineComponent({
   components: {
-    Snake
+    Snake,
+    RecordListVue
   },
-  setup() {
-    
-  },
+  computed: {
+    record: function() {
+      return this.$store.getters['RecordModalModule/getModalState'];
+    }
+  }
 })
 </script>
 
 <style lang="sass">
+  @import 'src/components/Modal/Modal.sass'
   @import 'src/style/app.sass'
   @import 'src/style/app.css'
   @import 'src/style/font.sass'

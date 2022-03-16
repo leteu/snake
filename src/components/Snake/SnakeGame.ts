@@ -1,4 +1,4 @@
-import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted, watch } from 'vue';
+import { defineComponent, h, reactive, ref, Ref, onBeforeUnmount, onMounted, watch, useSlots } from 'vue';
 import 'src/components/Canvas';
 import getScoreSound from 'app/public/mixkit-game-ball-tap-2073.wav';
 import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
@@ -6,6 +6,7 @@ import MainMenuOptions from './MainMenuOptions';
 import GameOver from './GameOver';
 import RecordClass from './RecordClass';
 import AddInput from './AddInput';
+import { useStore } from 'vuex';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
@@ -25,6 +26,8 @@ declare global {
 export default defineComponent({
   name: "SnakeGame",
   setup() {
+    const $store = useStore();
+
     const state = reactive({
       size: 15,
 
@@ -99,7 +102,7 @@ export default defineComponent({
           }
 
           if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'record') {
-            
+            $store.dispatch('RecordModalModule/show');
           }
   
           if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'exit') {
