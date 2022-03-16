@@ -13,7 +13,4 @@ const StoreModule: Module<RecordModalModuleStateInterface, StateInterface> = {
   state
 };
 
-export {
-  RecordModalModuleStateInterface
-}
 export default StoreModule;

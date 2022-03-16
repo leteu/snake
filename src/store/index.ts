@@ -5,7 +5,8 @@ import {
   StoreOptions,
   useStore as vuexUseStore,
 } from 'vuex'
-import RecordModalModule, { RecordModalModuleStateInterface } from './RecordModalModule'
+import RecordModalModule from './RecordModalModule'
+import { RecordModalModuleStateInterface } from './RecordModalModule/state'
 
 export interface StateInterface {
   RecordModalModule: StoreOptions<RecordModalModuleStateInterface>;
