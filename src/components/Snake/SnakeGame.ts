@@ -10,7 +10,8 @@ import { useStore } from 'vuex';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
-let gameInterval: NodeJS.Timeout;
+// let gameInterval: NodeJS.Timeout;
+let gameInterval: () => void;
 let mainMenu: MainMenuOptions;
 let gameOver: GameOver;
 let inputClass: AddInput;
@@ -55,6 +56,11 @@ export default defineComponent({
       max: {
         width: 0,
         height: 0
+      },
+
+      bonus: {
+        x: 0,
+        y: 0,
       }
     });
     
@@ -68,6 +74,13 @@ export default defineComponent({
         sound: new Audio(getEndSound)
       }
     });
+
+    const rainbowState = reactive({
+      bonus: false,
+      from: (Math.random() * 360) % 360,
+      to: (Math.random() * 360) % 360,
+      step: 1
+    })
 
     function playGetScoreSound() {
       music.score.sound.volume = music.score.volume;
@@ -224,7 +237,7 @@ export default defineComponent({
       document.removeEventListener("keydown", keyPush);
       canvas.removeEventListener('click', canvasClickEvent);
       canvas.removeEventListener('mousemove', canvasMouseMoveEvent)
-      clearInterval(gameInterval);
+      // clearInterval(gameInterval);
     }
 
     function resetSize() {
@@ -243,7 +256,17 @@ export default defineComponent({
       if (!state.gameStatus) {
         state.move = { x: 0.1, y: 0 };
         state.score = getScorePosition();
-        gameInterval = setInterval(game, 1);
+        state.bonus = getScorePosition();
+        // gameInterval = setInterval(game, 1);
+        gameInterval = () => {
+          setTimeout(() => {
+            if(!state.gameStatus) return;
+            game();
+            gameInterval();
+          }, rainbowState.bonus ? 1 : 7);
+        };
+        gameInterval();
+
         state.gameStatus = true;
         state.pageStatus = 'game';
       }
@@ -253,6 +276,19 @@ export default defineComponent({
     function resetMap() {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if(rainbowState.bonus) {
+        ctx.strokeStyle = createGradient();
+        ctx.lineWidth = 10;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function createGradient() {
+      var gr = ctx.createLinearGradient(0, 0, 500, 0);               // create gradient
+      gr.addColorStop(0, `hsl(${rainbowState.from}, 100%, 50%)`);   // start color
+      gr.addColorStop(1, `hsl(${rainbowState.to}, 100%, 50%)`);   // end color
+      return gr;                                            // set as fill style
     }
 
     function getScorePosition() {
@@ -267,6 +303,8 @@ export default defineComponent({
     function game() {
       state.player.x += state.move.x;
       state.player.y += state.move.y;
+      rainbowState.from += rainbowState.step;
+      rainbowState.to += rainbowState.step;
 
       state.player.x = parseFloat(state.player.x.toFixed(1));
       state.player.y = parseFloat(state.player.y.toFixed(1));
@@ -305,7 +343,7 @@ export default defineComponent({
         )
       ) {
         playGetScoreSound();
-        state.tail++;
+        state.tail += rainbowState.bonus ? 2 : 1;
         state.score = getScorePosition();
       }
 
@@ -318,6 +356,43 @@ export default defineComponent({
         state.size / 2
       ).fill();
 
+      // bonus
+      if (
+        (
+          (
+            (state.player.x >= (state.bonus.x + (state.size / 30) - (state.size / 15)))
+            &&
+            (state.player.x <= (state.bonus.x + (state.size / 30) + (state.size / 15)))
+          )
+        )
+        &&
+        (
+          (
+            (state.player.y >= (state.bonus.y + (state.size / 30) - (state.size / 15)))
+            &&
+            (state.player.y <= (state.bonus.y + (state.size / 30) + (state.size / 15)))
+          )
+        )
+      ) {
+        rainbowState.bonus = true;
+        setTimeout(() => {
+          rainbowState.bonus = false;
+        }, 10 * 1000);
+
+        state.bonus = getScorePosition();
+      }
+
+      if(!rainbowState.bonus) {
+        ctx.fillStyle = createGradient();
+        ctx.roundRect(
+          state.bonus.x * state.size,
+          state.bonus.y * state.size,
+          state.size - 2,
+          state.size - 2,
+          state.size / 2
+        ).fill();
+      }
+
       // snake
       ctx.fillStyle = "lime";
       for (const item of state.trailArr) {
@@ -327,7 +402,7 @@ export default defineComponent({
           state.pageStatus = 'gameOver';
           recordClass.updateScore(state.tail);
           gameOver.gameOver(state.tail);
-          clearInterval(gameInterval);
+          // clearInterval(gameInterval);
 
           state.tail = defaultTail;
           state.player = { x: 15, y: 15 };
