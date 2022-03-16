@@ -5,12 +5,14 @@ import getEndSound from 'app/public/mixkit-player-losing-or-failing-2042.wav';
 import MainMenuOptions from './MainMenuOptions';
 import GameOver from './GameOver';
 import RecordClass from './RecordClass';
+import AddInput from './AddInput';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let gameInterval: NodeJS.Timeout;
 let mainMenu: MainMenuOptions;
 let gameOver: GameOver;
+let inputClass: AddInput;
 const defaultTail = 1;
 const recordClass = new RecordClass();
 
@@ -108,7 +110,20 @@ export default defineComponent({
   
           if (gameOver.widthPosition(pos.x) === 'record' && gameOver.heightPosition(pos.y)) {
             // const playerName = prompt('이름을 입력해주세요.');
-            recordClass.record('');
+            // recordClass.record('');
+            canvas.removeEventListener('click', canvasClickEvent);
+            canvas.removeEventListener('mousemove', canvasMouseMoveEvent);
+            inputClass.inputPos((canvas.width / 10) * 5 ,canvas.height / 4 * 3)
+              .then((input) => {
+                input.onblur = (event) => inputClass.handleBlur(event)
+                  .then((res) => {
+                    if(res) {
+                      recordClass.record(`${res}`);
+                    }
+                    canvas.addEventListener('click', canvasClickEvent);
+                    canvas.addEventListener('mousemove', canvasMouseMoveEvent);
+                  })
+              });
           }
   
           if (gameOver.widthPosition(pos.x) === 'goMain' && gameOver.heightPosition(pos.y)) {
@@ -374,6 +389,7 @@ export default defineComponent({
 
       mainMenu = new MainMenuOptions(canvas, ctx);
       gameOver = new GameOver(canvas, ctx);
+      inputClass = new AddInput(canvas, ctx);
 
       addEvent();
       resetSize();
