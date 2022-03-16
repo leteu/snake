@@ -17,5 +17,8 @@ export default defineConfig({
     fs: {
       strict: true,
     }
+  },
+  css: {
+    postcss: './.postcssrc.js'
   }
 })
