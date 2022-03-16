@@ -97,8 +97,12 @@ export default defineComponent({
           if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'options') {
             
           }
+
+          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'record') {
+            
+          }
   
-          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'source') {
+          if (mainMenu.menuWidthPosition(pos.x) && mainMenu.menuHeightPosition(pos.y) === 'exit') {
             window.close();
           }
           break;
@@ -147,13 +151,15 @@ export default defineComponent({
 
           mainMenu.start(mainWidthPosition && mainHeightPosition === 'start');
           mainMenu.options(mainWidthPosition && mainHeightPosition === 'options');
-          mainMenu.exit(mainWidthPosition && mainHeightPosition === 'source');
+          mainMenu.exit(mainWidthPosition && mainHeightPosition === 'exit');
+          mainMenu.showRecord(mainWidthPosition && mainHeightPosition === 'record');
 
           canvas.style.cursor = (
             (
               (mainWidthPosition && mainHeightPosition === 'start')
               || (mainWidthPosition && mainHeightPosition === 'options')
-              || (mainWidthPosition && mainHeightPosition === 'source')
+              || (mainWidthPosition && mainHeightPosition === 'record')
+              || (mainWidthPosition && mainHeightPosition === 'exit')
             )
           ) ? 'pointer' : 'default';
 
@@ -376,6 +382,7 @@ export default defineComponent({
       mainMenu.start();
       mainMenu.options();
       mainMenu.exit();
+      mainMenu.showRecord();
     }
 
     function optionMap() {
