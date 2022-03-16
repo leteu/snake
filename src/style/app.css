@@ -1,0 +1,59 @@
+
+.height-inherit { height: inherit !important; }
+.max-height-inherit { max-height: inherit !important; }
+.min-height-inherit { min-height: inherit !important; }
+
+.width-inherit { width: inherit !important; }
+.max-width-inherit { max-width: inherit !important; }
+.min-width-inherit { min-width: inherit !important; }
+
+@for $i from 0 to 100 {
+  .min-height-$(i)vh { min-height: $(i)vh !important; }
+  .min-width-$(i)vw { min-width: $(i)vw !important; }
+  .max-height-$(i)vh { max-height: $(i)vh !important; }
+  .max-width-$(i)vw { max-width: $(i)vw !important; }
+
+  .min-height-$(i)pct { min-height: $(i)% !important; }
+  .min-width-$(i)pct { min-width: $(i)% !important; }
+  .max-height-$(i)pct { max-height: $(i)% !important; }
+  .max-width-$(i)pct { max-width: $(i)% !important; }
+
+  .height-$(i)pct { height: $(i)% !important; }
+  .width-$(i)pct { width: $(i)% !important; }
+  .height-$(i)vh { height: $(i)vh !important; }
+  .width-$(i)vw { width: $(i)vw !important; }
+
+  .left-$(i)pct { left: $(i)%; }
+  .top-$(i)pct { top: $(i)%; }
+  .bottom-$(i)pct { bottom: $(i)%; }
+  .right-$(i)pct { right: $(i)%; }
+
+  .left-minus-$(i)pct { left: -$(i)%; }
+  .top-minus-$(i)pct { top: -$(i)%; }
+  .bottom-minus-$(i)pct { bottom: -$(i)%; }
+  .right-minus-$(i)pct { right: -$(i)%; }
+}
+
+@for $i from 0 to 2000 {
+  .height-$(i)px { height: $(i)px !important; }
+  .width-$(i)px { width: $(i)px !important; }
+  .line-height-$(i)px { line-height: $(i)px; }
+  .max-height-$(i)px { max-height: $(i)px !important; }
+  .max-width-$(i)px { max-width: $(i)px !important; }
+  .min-height-$(i)px { min-height: $(i)px !important; }
+  .min-width-$(i)px { min-width: $(i)px !important; }
+
+  .left-$(i)px { left: $(i)px; }
+  .top-$(i)px { top: $(i)px; }
+  .bottom-$(i)px { bottom: $(i)px; }
+  .right-$(i)px { right: $(i)px; }
+
+  .left-minus-$(i)px { left: -$(i)px; }
+  .top-minus-$(i)px { top: -$(i)px; }
+  .bottom-minus-$(i)px { bottom: -$(i)px; }
+  .right-minus-$(i)px { right: -$(i)px; }
+
+  .fs-$i { font-size: calc($(i)em / 100); }
+
+  .z-index-$(i) { z-index: $(i); }
+}

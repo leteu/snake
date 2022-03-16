@@ -1,0 +1,63 @@
+*::-webkit-scrollbar
+  width: 6px
+  height: 6px
+
+*::-webkit-scrollbar-thumb
+  background-color: rgba(120, 144, 156, 0.7)
+  border-radius: 6px
+
+*::-webkit-scrollbar-track 
+  background-color: rgba(176, 190, 196, 1)
+  border-radius: 6px
+  box-shadow: inset 0 0 5px white
+
+.flex
+  display: flex
+
+.items-center
+  align-items: center
+
+.justify-center
+  justify-content: center
+.justify-around
+  justify-content: space-around
+.justify-between
+  justify-content: space-between
+  
+.text-center
+  text-align: center
+
+.scroll-y
+  overflow-y: auto
+
+
+.gutter-x
+  &-sm
+    *
+      &:not(:first-child)
+        margin-left: 8px
+  &-md
+    *
+      &:not(:first-child)
+        margin-left: 16px
+  &-lg
+    *
+      &:not(:first-child)
+        margin-left: 24px
+  
+.card
+  background: white
+  border-radius: 8px
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .33)
+  transition: all .3s ease
+
+.card-section
+  padding: 16px
+  height: 100%
+  width: auto
+
+.button
+  cursor: pointer
+  color: #dedede
+  &:hover
+    color: #2e2e2e

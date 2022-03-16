@@ -18,6 +18,10 @@ export default defineComponent({
 </script>
 
 <style lang="sass">
+  @import 'src/style/app.sass'
+  @import 'src/style/app.css'
+  @import 'src/style/font.sass'
+
   @font-face
     font-family: 'Press Start 2P'
     src: url('font/PressStart2P-Regular.ttf') format('truetype')
@@ -37,6 +41,12 @@ export default defineComponent({
   .dos-gothic
     font-family: 'DOSGothic'
 
+  body
+    margin: 0
+    height: 100%
+    overflow: hidden
+
   #app
+    height: inherit
     overflow: hidden
 </style>
